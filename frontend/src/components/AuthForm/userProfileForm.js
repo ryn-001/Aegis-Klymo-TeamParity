@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import './userProfileForm.css';
 
@@ -7,7 +7,7 @@ const UserProfileForm = () => {
   const [formData, setFormData] = useState({ username: '', bio: '', photo: null });
 
   const capture = useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
+    webcamRef.current.getScreenshot();
     setFormData((prev) => ({ ...prev }));
   }, [webcamRef]);
 

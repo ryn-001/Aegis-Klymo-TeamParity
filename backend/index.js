@@ -29,6 +29,12 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
     QueueMatchmaking.addUser(socket);
+
+    socket.join("TEST_ROOM_12345")
+
+    socket.on("send_message", (data) => {
+        socket.to(data.roomId).emit("receive_message",data);
+    });
     
     socket.on("disconnect", () => {
         console.log("User disconnected");
