@@ -1,4 +1,4 @@
-const {Chat} = require("../services/index.services");
+const Chat = require("../services/index.services");
 
 const createChat = async (participant1,participant2,roomId) => {
     return await Chat.create({

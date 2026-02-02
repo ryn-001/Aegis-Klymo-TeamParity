@@ -2,10 +2,9 @@ const Joi = require('joi');
 
 const userSchema = Joi.object({
     username: Joi.string().alphanum().min(3).max(20).trim().required(),
-    bio: Joi.string().max(250).required(),
+    bio: Joi.string().max(250).allow('') .required(),
     gender: Joi.string().valid('Male', 'Female').required(),
-    image: Joi.object({url: Joi.string().uri().required()}).required(),
-    intrests: Joi.string().valid('Male', 'Female','Any').default('Any')
-})
+    interests: Joi.array().items(Joi.string().trim()).default([])
+});
 
-module.exports = {userSchema};
+module.exports = { userSchema };

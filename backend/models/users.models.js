@@ -14,14 +14,11 @@ const userSchema = new mongoose.Schema({
         enum: ['Male','Female'],
         required: true
     },
-    image:{
-        url: { type: String, required: true }
-    },
-    intrests: {
-        type: String,
-        enum: ['Male','Female','Any'],
-        default: 'Any'
+    interests: {
+        type: [String],
+        required: true
     }
 }, {timestamps: true});
 
-module.exports = mongoose.model('users',userSchema);
+const User = mongoose.model('User',userSchema);
+module.exports = User;

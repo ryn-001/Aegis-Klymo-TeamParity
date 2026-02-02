@@ -1,4 +1,4 @@
 const ChatServices = require("./chat.services");
-const MessageServices = require("./messages.services");
+const UserServices = require("./users.services");
 
-module.exports = {ChatServices,MessageServices};
+module.exports = {ChatServices,UserServices};

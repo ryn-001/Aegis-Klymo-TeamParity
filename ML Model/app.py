@@ -1,41 +1,64 @@
-
-import gradio as gr
-from transformers import AutoImageProcessor, SiglipForImageClassification
-from PIL import Image
 import torch
+import requests
+from io import BytesIO
+from PIL import Image
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import cloudinary
+import cloudinary.uploader
+from transformers import AutoImageProcessor, SiglipForImageClassification
 
+app = Flask(__name__)
+CORS(app)
 
-model_name = "prithivMLmods/Realistic-Gender-Classification"
-model = SiglipForImageClassification.from_pretrained(model_name)
-processor = AutoImageProcessor.from_pretrained(model_name)
-
-
-id2label = {
-    "0": "female portrait",
-    "1": "male portrait"
-}
-
-def classify_gender(image):
-    image = Image.fromarray(image).convert("RGB")
-    inputs = processor(images=image, return_tensors="pt")
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-        logits = outputs.logits
-        probs = torch.nn.functional.softmax(logits, dim=1).squeeze().tolist()
-
-    prediction = {id2label[str(i)]: round(probs[i], 3) for i in range(len(probs))}
-    return prediction
-
-
-iface = gr.Interface(
-    fn=classify_gender,
-    inputs=gr.Image(type="numpy"),
-    outputs=gr.Label(num_top_classes=2, label="Gender Classification"),
-    title="Realistic-Gender-Classification",
-    description="Upload a realistic portrait image to classify it as 'female portrait' or 'male portrait'."
+# --- CONFIGURATION ---
+# Replace the API_KEY and API_SECRET with your actual strings from Cloudinary
+cloudinary.config( 
+  cloud_name = "dpf9ahkft", 
+  api_key = "715742843611293", 
+  api_secret = "w7D3JKykv_PVaFRD84DRP_56hIM",
+  secure = True
 )
 
-if __name__ == "__main__":
-    iface.launch()
+MODEL_NAME = "prithivMLmods/Realistic-Gender-Classification"
+model = SiglipForImageClassification.from_pretrained(MODEL_NAME)
+processor = AutoImageProcessor.from_pretrained(MODEL_NAME)
 
+@app.route('/classify', methods=['POST'])
+def classify():
+    try:
+        data = request.get_json()
+        print(f"Incoming Request: {data}") 
+
+        image_url = data.get('url')
+        public_id = data.get('public_id')
+
+        if not image_url:
+            return jsonify({"error": "No URL provided"}), 
+
+        response = requests.get(image_url, timeout=10)
+        img = Image.open(BytesIO(response.content)).convert("RGB")
+        
+        inputs = processor(images=img, return_tensors="pt")
+        with torch.no_grad():
+            outputs = model(**inputs)
+            probs = torch.nn.functional.softmax(outputs.logits, dim=1).squeeze().tolist()
+
+        gender = "female" if probs[0] > probs[1] else "male"
+        print(f"Result: {gender}")
+
+        if public_id:
+            try:
+                cloudinary.uploader.destroy(public_id)
+                print(f"Cloudinary file deleted: {public_id}")
+            except Exception as e:
+                print(f"Cloudinary deletion failed (ignoring): {e}")
+        
+        return jsonify({"gender": gender, "status": "success"})
+
+    except Exception as e:
+        print(f"CRITICAL ERROR: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000, debug=True)

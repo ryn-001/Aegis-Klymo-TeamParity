@@ -7,7 +7,7 @@ const Hero = () => {
     <Box className="hero-content">
       <div className="trust-badge">
         <Shield sx={{ fontSize: 16, mr: 1 }} />
-        <span>KLYMO • VERIFIED SAFETY</span>
+        <span>VERIFIED SAFETY</span>
       </div>
       <Typography variant="h1" className="hero-title">
         Real <span className="gradient-highlight">Vibe.</span> <br/> Zero Trace.

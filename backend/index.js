@@ -28,16 +28,37 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
-    QueueMatchmaking.addUser(socket);
 
-    socket.join("TEST_ROOM_12345")
+    socket.on("join_queue", (userData) => {
+        socket.userId = userData.userId;
+        socket.deviceId = userData.deviceId;
+        socket.username = userData.username; 
+        socket.bio = userData.bio;           
+        socket.interests = userData.interests;
+
+        QueueMatchmaking.addUser(socket);
+    });
 
     socket.on("send_message", (data) => {
-        socket.to(data.roomId).emit("receive_message",data);
+        if (data.roomId) {
+            socket.to(data.roomId).emit("receive_message", data);
+        }
     });
-    
+
+    socket.on("requeue", () => {
+        console.log(`User ${socket.id} requested new match`);
+        QueueMatchmaking.deleteUser(socket);
+        QueueMatchmaking.addUser(socket);
+    });
+
+    socket.on("send_message", (data) => {
+        if (data.roomId) {
+            socket.to(data.roomId).emit("receive_message", data);
+        }
+    });
+
     socket.on("disconnect", () => {
-        console.log("User disconnected");
+        console.log(`User ${socket.id} disconnected`);
         QueueMatchmaking.deleteUser(socket);
     });
 });
