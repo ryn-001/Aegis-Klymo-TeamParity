@@ -49,15 +49,15 @@ const calculateBan = (count) => {
 
 const terminateActiveChat = async (socket) => {
     const activeChat = await ChatModel.findOne({
-        "participants.socketId": socket.id,
+        $or: [
+            { "participants.socketId": socket.id },
+            { "participants.deviceId": socket.deviceId }
+        ],
         status: 'active'
     });
 
     if (activeChat) {
-        const partner = activeChat.participants.find(p => p.socketId !== socket.id);
-        if (partner) {
-            io.to(partner.socketId).emit("partner_disconnected");
-        }
+        io.to(activeChat.roomId).emit("partner_disconnected");
         await ChatModel.deleteOne({ roomId: activeChat.roomId });
         return activeChat;
     }
@@ -72,17 +72,15 @@ io.on("connection", (socket) => {
                 if (deviceStatus.isPermanentBan || (deviceStatus.banUntil && new Date() < deviceStatus.banUntil)) {
                     return socket.emit("banned", {
                         permanent: deviceStatus.isPermanentBan,
-                        until: deviceStatus.banUntil
+                        until: deviceStatus.until
                     });
                 }
             }
 
-            socket.userId = userData.userId;
+            // Ensure we only store the string ID, not the whole object
+            socket.userId = userData.userId?.userId || userData.userId; 
             socket.deviceId = userData.deviceId;
             socket.username = userData.username;
-            socket.gender = userData.gender;
-            socket.bio = userData.bio;
-            socket.interests = userData.interests;
             socket.avatar = userData.avatar;
 
             QueueMatchmaking.addUser(socket);
@@ -131,10 +129,11 @@ io.on("connection", (socket) => {
         try {
             await terminateActiveChat(socket);
             if (socket.userId) {
-                await UserServices.deleteUser(socket.userId);
+                const cleanId = typeof socket.userId === 'object' ? socket.userId.userId : socket.userId;
+                await UserServices.deleteUser(cleanId);
             }
         } catch (err) {
-            console.error(err);
+            console.error("Disconnect Cleanup Error:", err);
         }
     });
 });
