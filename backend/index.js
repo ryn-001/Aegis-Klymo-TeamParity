@@ -48,18 +48,23 @@ const calculateBan = (count) => {
 };
 
 const terminateActiveChat = async (socket) => {
-    const activeChat = await ChatModel.findOne({
-        $or: [
-            { "participants.socketId": socket.id },
-            { "participants.deviceId": socket.deviceId }
-        ],
-        status: 'active'
-    });
+    try {
+        const activeChat = await ChatModel.findOne({
+            status: 'active',
+            $or: [
+                { "participants.socketId": socket.id },
+                { "participants.deviceId": socket.deviceId }
+            ]
+        });
 
-    if (activeChat) {
-        io.to(activeChat.roomId).emit("partner_disconnected");
-        await ChatModel.deleteOne({ roomId: activeChat.roomId });
-        return activeChat;
+        if (activeChat) {
+            io.to(activeChat.roomId).emit("partner_disconnected");
+
+            await ChatModel.deleteOne({ roomId: activeChat.roomId });
+            return activeChat;
+        }
+    } catch (err) {
+        console.error("Termination Error:", err);
     }
     return null;
 };
@@ -72,27 +77,35 @@ io.on("connection", (socket) => {
                 if (deviceStatus.isPermanentBan || (deviceStatus.banUntil && new Date() < deviceStatus.banUntil)) {
                     return socket.emit("banned", {
                         permanent: deviceStatus.isPermanentBan,
-                        until: deviceStatus.until
+                        until: deviceStatus.banUntil
                     });
                 }
             }
 
-            // Ensure we only store the string ID, not the whole object
-            socket.userId = userData.userId?.userId || userData.userId; 
+            let cleanUserId = userData.userId;
+            if (cleanUserId && typeof cleanUserId === 'object') {
+                cleanUserId = cleanUserId.userId || cleanUserId.id || cleanUserId._id;
+            }
+
+            socket.userId = cleanUserId;
             socket.deviceId = userData.deviceId;
             socket.username = userData.username;
             socket.avatar = userData.avatar;
 
             QueueMatchmaking.addUser(socket);
         } catch (err) {
-            console.error(err);
+            console.error("Join Queue Error:", err);
         }
     });
 
     socket.on("requeue", async () => {
-        await QueueMatchmaking.deleteUser(socket.id);
-        await terminateActiveChat(socket);
-        QueueMatchmaking.addUser(socket);
+        try {
+            await QueueMatchmaking.deleteUser(socket.id);
+            await terminateActiveChat(socket);
+            QueueMatchmaking.addUser(socket);
+        } catch (err) {
+            console.error("Requeue Error:", err);
+        }
     });
 
     socket.on("send_message", (data) => {
@@ -120,17 +133,17 @@ io.on("connection", (socket) => {
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error("Report Error:", err);
         }
     });
 
     socket.on("disconnect", async () => {
-        await QueueMatchmaking.deleteUser(socket.id);
         try {
+            await QueueMatchmaking.deleteUser(socket.id);
             await terminateActiveChat(socket);
-            if (socket.userId) {
-                const cleanId = typeof socket.userId === 'object' ? socket.userId.userId : socket.userId;
-                await UserServices.deleteUser(cleanId);
+            
+            if (socket.userId && typeof socket.userId === 'string') {
+                await UserServices.deleteUser(socket.userId);
             }
         } catch (err) {
             console.error("Disconnect Cleanup Error:", err);
