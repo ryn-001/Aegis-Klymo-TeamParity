@@ -48,24 +48,23 @@ const calculateBan = (count) => {
 };
 
 io.on("connection", (socket) => {
-    console.log(`${socket.id} connected`);
     socket.on("join_queue", async (userData) => {
         try {
             const deviceStatus = await DeviceServices.findDevice(userData.deviceId);
             if (deviceStatus) {
                 if (deviceStatus.isPermanentBan || (deviceStatus.banUntil && new Date() < deviceStatus.banUntil)) {
-                    return socket.emit("banned", { 
-                        permanent: deviceStatus.isPermanentBan, 
-                        until: deviceStatus.banUntil 
+                    return socket.emit("banned", {
+                        permanent: deviceStatus.isPermanentBan,
+                        until: deviceStatus.banUntil
                     });
                 }
             }
 
-            socket.userId = userData.userId; 
+            socket.userId = userData.userId;
             socket.deviceId = userData.deviceId;
-            socket.username = userData.username; 
+            socket.username = userData.username;
             socket.gender = userData.gender;
-            socket.bio = userData.bio;           
+            socket.bio = userData.bio;
             socket.interests = userData.interests;
             socket.avatar = userData.avatar;
 
@@ -76,7 +75,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("requeue", async () => {
-        QueueMatchmaking.deleteUser(socket.id);
+        await QueueMatchmaking.deleteUser(socket.id);
         const activeChat = await ChatModel.findOne({ "participants.socketId": socket.id, status: 'active' });
         if (activeChat) {
             socket.to(activeChat.roomId).emit("partner_disconnected");
@@ -94,6 +93,16 @@ io.on("connection", (socket) => {
     socket.on("report_user", async ({ targetDeviceId }) => {
         if (!targetDeviceId) return;
         try {
+            const activeChat = await ChatModel.findOne({
+                "participants.socketId": socket.id,
+                status: 'active'
+            });
+
+            if (activeChat) {
+                socket.to(activeChat.roomId).emit("partner_disconnected");
+                await ChatModel.deleteOne({ roomId: activeChat.roomId });
+            }
+
             const device = await DeviceServices.updateReports(targetDeviceId);
             const banInfo = calculateBan(device.reportCount);
 
@@ -101,22 +110,24 @@ io.on("connection", (socket) => {
                 const allSockets = await io.fetchSockets();
                 const targetSocket = allSockets.find(s => s.deviceId === targetDeviceId);
                 if (targetSocket) {
-                    targetSocket.emit("banned", { permanent: banInfo.isPermanentBan, until: banInfo.banUntil });
+                    targetSocket.emit("banned", {
+                        permanent: banInfo.isPermanentBan,
+                        until: banInfo.banUntil
+                    });
                     targetSocket.disconnect();
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error("Report Error:", err);
         }
     });
 
     socket.on("disconnect", async () => {
-        console.log(`${socket.id} disconnected`);
-        QueueMatchmaking.deleteUser(socket.userId);
+        await QueueMatchmaking.deleteUser(socket.id);
         try {
-            const activeChat = await ChatModel.findOne({ 
-                "participants.socketId": socket.id, 
-                status: 'active' 
+            const activeChat = await ChatModel.findOne({
+                "participants.socketId": socket.id,
+                status: 'active'
             });
             if (activeChat) {
                 socket.to(activeChat.roomId).emit("partner_disconnected");
