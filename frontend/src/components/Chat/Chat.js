@@ -173,23 +173,31 @@ const Chat = () => {
   const SidebarContent = (
     <Box className="chat-sidebar">
       <Typography variant="subtitle1" fontWeight={900} sx={{ mb: 4 }}>Aegis.chat</Typography>
+      
       <Typography className="sidebar-label">YOUR IDENTITY</Typography>
       <Box className="profile-card">
         <AvatarDisplay data={currentUserAvatar} fallback={user?.username?.charAt(0)} />
         <Box sx={{ ml: 1.5 }}>
           <Typography variant="subtitle2" fontWeight={700}>{user?.username || "You"}</Typography>
+          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', lineHeight: 1 }}>{user?.gender || 'Not specified'}</Typography>
           <Typography variant="caption" sx={{ color: '#10b981' }}>Online</Typography>
         </Box>
       </Box>
+
       <Divider className="sidebar-divider" />
+      
       <Typography className="sidebar-label">CHATTING WITH</Typography>
       <Box className="profile-card">
         <AvatarDisplay data={partner?.avatar} fallback={partner?.username?.charAt(0) || '?'} />
         <Box sx={{ ml: 1.5 }}>
           <Typography variant="subtitle2" fontWeight={700}>{partner?.username || 'Searching...'}</Typography>
-          <Typography variant="caption" color="#94a3b8">{partner?.gender || 'Pending'}</Typography>
+          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', lineHeight: 1 }}>{partner?.gender || 'Pending'}</Typography>
+          <Typography variant="caption" sx={{ color: partner ? '#10b981' : '#64748b' }}>
+            {partner ? 'Connected' : 'Searching...'}
+          </Typography>
         </Box>
       </Box>
+
       <Box sx={{ flexGrow: 1 }} />
       <Stack spacing={1.5}>
         <Button className="action-btn next-btn" fullWidth startIcon={<NavigateNext />} onClick={handleNext}>Next Session</Button>

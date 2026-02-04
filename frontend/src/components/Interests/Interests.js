@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { Box, Typography, Button, Paper, Chip, Stack, Modal, IconButton, CircularProgress, TextField } from '@mui/material';
+import { Box, Typography, Button, Paper, Chip, Stack, Modal, IconButton, CircularProgress, TextField, Divider } from '@mui/material';
 import { config } from "../../index";
-import { ChatBubble, Close, ArrowBackIos, ArrowForwardIos, GppBad } from '@mui/icons-material';
+import { ChatBubble, Close, ArrowBackIos, ArrowForwardIos, GppBad, Person } from '@mui/icons-material';
 import axios from 'axios';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import './Interests.css';
@@ -128,6 +128,23 @@ const Interests = () => {
         </Box>
 
         <Paper className="flat-card" elevation={0}>
+          {/* Identity Tag */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+            <Box sx={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              bgcolor: 'rgba(139, 92, 246, 0.1)', 
+              px: 2, py: 0.5, 
+              borderRadius: 10, 
+              border: '1px solid rgba(139, 92, 246, 0.2)' 
+            }}>
+              <Person sx={{ fontSize: 16, color: '#8b5cf6', mr: 1 }} />
+              <Typography variant="caption" sx={{ color: '#8b5cf6', fontWeight: 700, letterSpacing: 0.5 }}>
+                IDENTIFIED AS {user?.gender?.toUpperCase() || 'GUEST'}
+              </Typography>
+            </Box>
+          </Box>
+
           <Box className="flat-section" sx={{ textAlign: 'center' }}>
             <Typography className="flat-label">Choose Avatar</Typography>
             <Box className="avatar-slider-premium">
@@ -138,6 +155,8 @@ const Interests = () => {
               <IconButton onClick={nextAvatar} className="slider-arrow"><ArrowForwardIos /></IconButton>
             </Box>
           </Box>
+
+          <Divider sx={{ my: 3, borderColor: 'rgba(255,255,255,0.05)' }} />
 
           <Box className="flat-section">
             <Box className="section-header" sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -172,6 +191,7 @@ const Interests = () => {
         </Paper>
       </Box>
 
+      {/* BANNED OVERLAY */}
       {isBanned && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(10, 15, 25, 0.98)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, p: 3 }}>
           <Box sx={{ maxWidth: 400, width: '100%', textAlign: 'center' }}>
@@ -193,6 +213,7 @@ const Interests = () => {
         </Box>
       )}
 
+      {/* MODAL */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box className="modal-style" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: '#1e293b', p: 4, borderRadius: 4, width: 350 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
