@@ -18,15 +18,11 @@ The platform is built on the principle of "Delete-after-verify" to ensure no per
 * **Image Capture:** The process begins with real-time image capture on the Landing Page.
 * **Secure Transit:** Images are sent to Cloudinary and processed by a Flask-based ML Model for gender classification.
 * **Immediate Purge:** Following verification, the image is immediately deleted from Cloudinary regardless of the result.
-* **Pseudonymous Profiles:** Successful users proceed to set up profiles using animated avatars, nicknames, and bios rather than real-world identities.
+* **Pseudonymous Profiles:** Successful users proceed to set up profiles using animated avatars, nicknames, and bios.
 
-<div align="center" style="background-color:white; padding:15px; border-radius:10px;">
-  <img width="1320" height="889" alt="Blank diagram" src="https://github.com/user-attachments/assets/178858de-12a7-48c6-8d3a-96cfc8fbf493" />
+<div align="center" style="background-color: white; padding: 20px;">
+  <img width="1320" height="889" alt="Blank diagram" src="https://github.com/user-attachments/assets/06cb293b-2ae5-42d4-8ac3-e50f45e0bd42" />
 </div>
-
-
-[Image of a system architecture diagram for a web application]
-
 
 ---
 
@@ -39,10 +35,9 @@ Aegis utilizes a 3-tier prioritized matchmaking engine to connect users efficien
 | **Middle** | **Tier 2: Gender** | If no interest match is found, the system filters based on the user's gender preference. |
 | **Lowest** | **Tier 3: FIFO** | As a final fallback, the system pairs the first two available users in the queue (First-In, First-Out). |
 
-<div align="center" style="background-color:white; padding:15px; border-radius:10px;">
-  <img width="440" height="660" alt="Blank diagram (1)" src="https://github.com/user-attachments/assets/385fa44f-a31a-4baa-8376-0c550fbb34ed" />
+<div align="center" style="background-color: white; padding: 20px;">
+  <img width="440" height="660" alt="Blank diagram (1)" src="https://github.com/user-attachments/assets/52692e1a-5fd0-46be-ad48-024e5caa9026" />
 </div>
-
 
 ---
 
@@ -62,12 +57,11 @@ Aegis utilizes a 3-tier prioritized matchmaking engine to connect users efficien
 ### Ephemeral Data Policy
 * **Zero Retention:** User records and chatrooms are purged from the database immediately upon disconnection or session termination.
 * **Local History:** Chat histories are stored only in the user's `LocalStorage` and are never uploaded to a server.
-* **Real-time Moderation:** Automated censorship monitors a blacklist of offensive words, blocking them before they reach the recipient.
+* **Real-time Moderation:** Automated censorship monitors a blacklist of offensive words.
 
-<div align="center" style="background-color:white; padding:15px; border-radius:10px;">
-  <img width="1042" height="640" alt="Blank diagram (2)" src="https://github.com/user-attachments/assets/608b217c-96a6-4d11-81bd-35e0350bba8b" />
+<div align="center" style="background-color: white; padding: 20px;">
+  <img width="1042" height="640" alt="Blank diagram (2)" src="https://github.com/user-attachments/assets/47fec823-c92d-419b-9757-296044c9362e" />
 </div>
-
 
 ---
 
