@@ -20,9 +20,7 @@ The platform is built on the principle of "Delete-after-verify" to ensure no per
 * **Immediate Purge:** Following verification, the image is immediately deleted from Cloudinary regardless of the result.
 * **Pseudonymous Profiles:** Successful users proceed to set up profiles using animated avatars, nicknames, and bios.
 
-<div align="center" style="background-color: white; padding: 20px;">
-  <img width="1320" height="889" alt="Blank diagram" src="https://github.com/user-attachments/assets/06cb293b-2ae5-42d4-8ac3-e50f45e0bd42" />
-</div>
+<img width="1320" height="889" alt="Blank diagram (3)" src="https://github.com/user-attachments/assets/163480f7-87ad-4350-8126-dde088d04360" />
 
 ---
 
@@ -35,9 +33,7 @@ Aegis utilizes a 3-tier prioritized matchmaking engine to connect users efficien
 | **Middle** | **Tier 2: Gender** | If no interest match is found, the system filters based on the user's gender preference. |
 | **Lowest** | **Tier 3: FIFO** | As a final fallback, the system pairs the first two available users in the queue (First-In, First-Out). |
 
-<div align="center" style="background-color: white; padding: 20px;">
-  <img width="440" height="660" alt="Blank diagram (1)" src="https://github.com/user-attachments/assets/52692e1a-5fd0-46be-ad48-024e5caa9026" />
-</div>
+<img width="440" height="660" alt="Blank diagram (4)" src="https://github.com/user-attachments/assets/bb153b3b-9113-4b75-889a-3a66aab8bf5a" />
 
 ---
 
@@ -59,9 +55,7 @@ Aegis utilizes a 3-tier prioritized matchmaking engine to connect users efficien
 * **Local History:** Chat histories are stored only in the user's `LocalStorage` and are never uploaded to a server.
 * **Real-time Moderation:** Automated censorship monitors a blacklist of offensive words.
 
-<div align="center" style="background-color: white; padding: 20px;">
-  <img width="1042" height="640" alt="Blank diagram (2)" src="https://github.com/user-attachments/assets/47fec823-c92d-419b-9757-296044c9362e" />
-</div>
+<img width="1042" height="640" alt="Blank diagram (5)" src="https://github.com/user-attachments/assets/8e18cdbb-9f15-4e25-9ccc-776e214a367f" />
 
 ---
 
